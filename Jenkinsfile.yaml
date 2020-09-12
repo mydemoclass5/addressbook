@@ -1,0 +1,47 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+    stages {
+        stage ("Get source code") {
+            steps {
+                git branch: 'master', credentialsId: 'github', url: 'https://github.com/mydemoclass5/addressbook.git'
+            }
+        }
+        stage ("Compile App") {
+            steps {
+                sh label: '', script: 'mvn compile'
+            }
+        }
+        stage ("Code Analysis") {
+            steps {
+                sh label: '', script: 'mvn -P metrics pmd:pmd'
+            }
+        }
+        stage ("Unit Test") {
+            steps {
+                sh label: '', script: 'mvn test'
+            }
+        }
+        stage ("package") {
+            steps {
+                sh label: '', script: 'mvn package'
+            }
+        }
+        stage ("Archive Artifacts") {
+            steps {
+                archiveArtifacts artifacts: 'target/addressbook.war', followSymlinks: false
+            }
+        }
+        stage ("Build Docker image") {
+            steps {
+                sh label: '', script: 'docker build . -t myimage:latest'
+            }
+        }
+        stage ("deploy container") {
+            steps {
+                sh label: '', script: 'docker run -dit -p 8888:8080 myimage:latest'
+            }
+        }
+    }
+}
