@@ -40,7 +40,8 @@ pipeline {
         }
         stage ("deploy container") {
             steps {
-                sh label: '', script: 'docker run -dit -p 8888:8080 myimage:latest'
+                sh label: '', script: 'docker rm -f address-book'
+                sh label: '', script: 'docker run -dit -p 8888:8080 --name address-book myimage:latest'
             }
         }
     }
